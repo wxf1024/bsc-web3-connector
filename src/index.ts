@@ -85,9 +85,13 @@ export class BscConnector extends AbstractConnector {
     // try to activate + get account via eth_requestAccounts
     let account;
     try {
-      account = await (window.BinanceChain.send as Send)(
-        "eth_requestAccounts"
-      ).then((sendReturn) => parseSendReturn(sendReturn)[0]);
+      account = (await window.BinanceChain.request({
+        method: 'eth_requestAccounts'
+      }))[0]
+      // deprecated: https://docs.bnbchain.org/docs/wallet/wallet_api#binancechainsend-deprecated
+      // account = await (window.BinanceChain.send as Send)(
+      //   "eth_requestAccounts"
+      // ).then((sendReturn) => parseSendReturn(sendReturn)[0]);
     } catch (error) {
       if ((error as any).code === 4001) {
         throw new UserRejectedRequestError();
@@ -99,12 +103,13 @@ export class BscConnector extends AbstractConnector {
     }
 
     // if unsuccessful, try enable
-    if (!account) {
-      // if enable is successful but doesn't return accounts, fall back to getAccount (not happy i have to do this...)
-      account = await window.BinanceChain.enable().then(
-        (sendReturn) => sendReturn && parseSendReturn(sendReturn)[0]
-      );
-    }
+    // deprecated: https://docs.bnbchain.org/docs/wallet/wallet_api#binancechainenable-deprecated
+    // if (!account) {
+    //   // if enable is successful but doesn't return accounts, fall back to getAccount (not happy i have to do this...)
+    //   account = await window.BinanceChain.enable().then(
+    //     (sendReturn) => sendReturn && parseSendReturn(sendReturn)[0]
+    //   );
+    // }
 
     return { provider: window.BinanceChain, ...(account ? { account } : {}) };
   }
